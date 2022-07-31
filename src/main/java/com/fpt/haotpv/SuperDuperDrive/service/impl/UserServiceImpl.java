@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
         String encodedSalt = Base64.getEncoder().encodeToString(salt);
         String hashedPassword = hashService.getHashedValue(user.getPassword(), encodedSalt);
-        user = new User(null, user.getUsername(), encodedSalt, hashedPassword, user.getFirstName(), user.getLastName());
+        user = new User(user.getUsername(), encodedSalt, hashedPassword, user.getFirstName(), user.getLastName());
 
         return userMapper.insert(user);
     }

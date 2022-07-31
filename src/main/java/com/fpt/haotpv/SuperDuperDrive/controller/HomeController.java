@@ -1,6 +1,7 @@
 package com.fpt.haotpv.SuperDuperDrive.controller;
 
 import com.fpt.haotpv.SuperDuperDrive.entity.User;
+import com.fpt.haotpv.SuperDuperDrive.service.CredentialService;
 import com.fpt.haotpv.SuperDuperDrive.service.NoteService;
 import com.fpt.haotpv.SuperDuperDrive.service.UserService;
 import org.springframework.security.core.Authentication;
@@ -15,12 +16,14 @@ import java.util.Optional;
 @RequestMapping("/home")
 public class HomeController {
 
+    private final CredentialService credentialService;
     private final NoteService noteService;
     private final UserService userService;
 
     private Integer userId;
 
-    public HomeController(NoteService noteService, UserService userService) {
+    public HomeController(CredentialService credentialService, NoteService noteService, UserService userService) {
+        this.credentialService = credentialService;
         this.noteService = noteService;
         this.userService = userService;
     }
@@ -30,6 +33,7 @@ public class HomeController {
 
         this.getUserId(authentication);
         model.addAttribute("noteList", this.noteService.getAllNotesByUser(userId));
+        model.addAttribute("credentialList", this.credentialService.getAllCredentialsByUser(userId));
 
         return "home";
     }

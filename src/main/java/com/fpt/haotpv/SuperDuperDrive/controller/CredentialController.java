@@ -1,8 +1,8 @@
 package com.fpt.haotpv.SuperDuperDrive.controller;
 
-import com.fpt.haotpv.SuperDuperDrive.entity.Note;
+import com.fpt.haotpv.SuperDuperDrive.entity.Credential;
 import com.fpt.haotpv.SuperDuperDrive.entity.User;
-import com.fpt.haotpv.SuperDuperDrive.service.NoteService;
+import com.fpt.haotpv.SuperDuperDrive.service.CredentialService;
 import com.fpt.haotpv.SuperDuperDrive.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -17,30 +17,30 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping
-public class NoteController {
+public class CredentialController {
 
     private static final String RESULT_PAGE_URL = "result";
 
-    private final NoteService noteService;
+    private final CredentialService credentialService;
     private final UserService userService;
 
     private String errorMessage;
     private Integer userId;
 
-    public NoteController(NoteService noteService, UserService userService) {
-        this.noteService = noteService;
+    public CredentialController(CredentialService credentialService, UserService userService) {
+        this.credentialService = credentialService;
         this.userService = userService;
     }
 
-    @PostMapping("/note")
-    public RedirectView saveNote(Note note, Authentication authentication, RedirectAttributes redirectAttributes) {
+    @PostMapping("/credential")
+    public RedirectView saveCredential(Credential credential, Authentication authentication, RedirectAttributes redirectAttributes) {
 
         this.getUserId(authentication);
-        Optional<Integer> optionalId = Optional.ofNullable(note.getNoteId());
+        Optional<Integer> optionalId = Optional.ofNullable(credential.getCredentialId());
 
         if (optionalId.isEmpty()) {
-            note.setUserId(this.userId);
-            int row = this.noteService.createNote(note);
+            credential.setUserId(this.userId);
+            int row = this.credentialService.createCredential(credential);
 
             if (row >= 1) {
                 redirectAttributes.addFlashAttribute("result", 1);
@@ -49,13 +49,14 @@ public class NoteController {
                 redirectAttributes.addFlashAttribute("result", 2);
             }
         } else {
-            Optional<Note> optionalNote = Optional.ofNullable(this.noteService.getNoteById(optionalId.get()));
+            Optional<Credential> optionalCredential = Optional.ofNullable(this.credentialService.getCredentialById(optionalId.get()));
 
-            if (optionalNote.isPresent()) {
-                boolean isSameUser = userId.equals(optionalNote.get().getUserId());
+            if (optionalCredential.isPresent()) {
+                boolean isSameUser = userId.equals(optionalCredential.get().getUserId());
 
                 if (isSameUser) {
-                    int row = this.noteService.updateNote(note);
+                    credential.setKey(optionalCredential.get().getKey());
+                    int row = this.credentialService.updateCredential(credential);
 
                     if (row >= 1) {
                         redirectAttributes.addFlashAttribute("result", 1);
@@ -64,11 +65,11 @@ public class NoteController {
                         redirectAttributes.addFlashAttribute("result", 2);
                     }
                 } else {
-                    errorMessage = "CANNOT UPDATE NOTE OF ANOTHER USER!";
+                    errorMessage = "CANNOT UPDATE CREDENTIAL OF ANOTHER USER!";
                     redirectAttributes.addFlashAttribute("error", errorMessage);
                 }
             } else {
-                errorMessage = "NOTE NOT EXIST!";
+                errorMessage = "CREDENTIAL NOT EXIST!";
                 redirectAttributes.addFlashAttribute("error", errorMessage);
             }
         }
@@ -76,19 +77,19 @@ public class NoteController {
         return new RedirectView(RESULT_PAGE_URL);
     }
 
-    @GetMapping("/deleteNote")
+    @GetMapping("/deleteCredential")
     public RedirectView deleteNote(Authentication authentication, @RequestParam Integer id, RedirectAttributes redirectAttributes) {
         this.getUserId(authentication);
         Optional<Integer> optionalId = Optional.ofNullable(id);
 
         if (optionalId.isPresent()) {
-            Optional<Note> optionalNote = Optional.ofNullable(this.noteService.getNoteById(optionalId.get()));
+            Optional<Credential> optionalNote = Optional.ofNullable(this.credentialService.getCredentialById(optionalId.get()));
 
             if (optionalNote.isPresent()) {
                 boolean isSameUser = userId.equals(optionalNote.get().getUserId());
 
                 if (isSameUser) {
-                    int row = this.noteService.deleteNote(optionalId.get());
+                    int row = this.credentialService.deleteCredential(optionalId.get());
 
                     if (row >= 1) {
                         redirectAttributes.addFlashAttribute("result", 1);
@@ -97,11 +98,11 @@ public class NoteController {
                         redirectAttributes.addFlashAttribute("result", 2);
                     }
                 } else {
-                    errorMessage = "CANNOT DELETE NOTE OF ANOTHER USER!";
+                    errorMessage = "CANNOT DELETE CREDENTIAL OF ANOTHER USER!";
                     redirectAttributes.addFlashAttribute("error", errorMessage);
                 }
             } else {
-                errorMessage = "NOTE NOT EXIST!";
+                errorMessage = "CREDENTIAL NOT EXIST!";
                 redirectAttributes.addFlashAttribute("error", errorMessage);
             }
         } else {

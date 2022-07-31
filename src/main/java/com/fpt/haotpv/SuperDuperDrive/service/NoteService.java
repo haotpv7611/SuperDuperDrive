@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface NoteService {
 
-    Note getNoteById(Integer id);
+    Note getNoteById(Integer noteId);
 
     List<Note> getAllNotesByUser(Integer userId);
 
@@ -14,5 +14,5 @@ public interface NoteService {
 
     int updateNote(Note note);
 
-    int deleteNote(Integer id);
+    int deleteNote(Integer noteId);
 }

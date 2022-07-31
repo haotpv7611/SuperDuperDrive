@@ -11,7 +11,6 @@ public interface NoteMapper {
     @Select("SELECT * FROM NOTES WHERE noteid = #{noteId}")
     Note findById(Integer noteId);
 
-    // get all notes by user
     @Select("SELECT * FROM NOTES WHERE userid = #{userId}")
     List<Note> findAllByUserId(Integer userId);
 

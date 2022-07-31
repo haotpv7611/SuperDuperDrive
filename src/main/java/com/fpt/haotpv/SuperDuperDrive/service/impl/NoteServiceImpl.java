@@ -17,15 +17,15 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Note getNoteById(Integer id) {
+    public Note getNoteById(Integer noteId) {
 
-        return this.mapper.findById(id);
+        return this.mapper.findById(noteId);
     }
 
     @Override
     public List<Note> getAllNotesByUser(Integer userId) {
 
-        return mapper.findAllByUserId(userId);
+        return this.mapper.findAllByUserId(userId);
     }
 
     @Override

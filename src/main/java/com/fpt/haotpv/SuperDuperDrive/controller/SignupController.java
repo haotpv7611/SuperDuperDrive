@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.annotation.PostConstruct;
-
 @Controller
 @RequestMapping("/signup")
 public class SignupController {
@@ -31,7 +29,8 @@ public class SignupController {
     }
 
     @PostMapping
-    public RedirectView signupUser(@ModelAttribute User user, RedirectAttributes redirectAttributes) {
+    public RedirectView signupUser(@ModelAttribute User user,
+                                   RedirectAttributes redirectAttributes) {
 
         final String DUPLICATE_USERNAME = "The username already exists.";
         final String CREATE_FAILED = "There was an error signing you up. Please try again.";
@@ -58,19 +57,5 @@ public class SignupController {
         }
 
         return new RedirectView(url);
-    }
-
-    @PostConstruct
-    private void initUser() {
-
-        final String temp = "123";
-        System.out.println("Init user123");
-        User user = new User();
-        user.setFirstName(temp);
-        user.setLastName(temp);
-        user.setUsername(temp);
-        user.setPassword(temp);
-        userService.createUser(user);
-        System.out.println(user);
     }
 }

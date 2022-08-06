@@ -19,10 +19,11 @@ import java.util.Optional;
 @RequestMapping
 public class NoteController {
 
-    private static final String RESULT_PAGE_URL = "result";
-
     private final NoteService noteService;
     private final UserService userService;
+    private final RedirectView redirectView = new RedirectView("result");
+    private final int SUCCESS_RESULT = 1;
+    private final int FAIL_RESULT = 2;
 
     private String errorMessage;
     private Integer userId;
@@ -33,83 +34,83 @@ public class NoteController {
     }
 
     @PostMapping("/note")
-    public RedirectView saveNote(Note note, Authentication authentication, RedirectAttributes redirectAttributes) {
+    public RedirectView saveNote(Note note,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
 
         this.getUserId(authentication);
+        int result = SUCCESS_RESULT;
         Optional<Integer> optionalId = Optional.ofNullable(note.getNoteId());
-
         if (optionalId.isEmpty()) {
             note.setUserId(this.userId);
             int row = this.noteService.createNote(note);
-
-            if (row >= 1) {
-                redirectAttributes.addFlashAttribute("result", 1);
-            } else {
-                errorMessage = "CREATE FAIL!";
-                redirectAttributes.addFlashAttribute("result", 2);
+            if (row < 1) {
+                result = FAIL_RESULT;
             }
         } else {
             Optional<Note> optionalNote = Optional.ofNullable(this.noteService.getNoteById(optionalId.get()));
+            if (optionalNote.isEmpty()) {
+                this.errorMessage = "NOTE NOT EXIST!";
+                redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
-            if (optionalNote.isPresent()) {
-                boolean isSameUser = userId.equals(optionalNote.get().getUserId());
+                return this.redirectView;
+            }
 
-                if (isSameUser) {
-                    int row = this.noteService.updateNote(note);
+            boolean isSameUser = this.userId.equals(optionalNote.get().getUserId());
+            if (!isSameUser) {
+                this.errorMessage = "CANNOT UPDATE NOTE OF ANOTHER USER!";
+                redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
-                    if (row >= 1) {
-                        redirectAttributes.addFlashAttribute("result", 1);
-                    } else {
-                        errorMessage = "UPDATE FAIL!";
-                        redirectAttributes.addFlashAttribute("result", 2);
-                    }
-                } else {
-                    errorMessage = "CANNOT UPDATE NOTE OF ANOTHER USER!";
-                    redirectAttributes.addFlashAttribute("error", errorMessage);
-                }
-            } else {
-                errorMessage = "NOTE NOT EXIST!";
-                redirectAttributes.addFlashAttribute("error", errorMessage);
+                return this.redirectView;
+            }
+
+            int row = this.noteService.updateNote(note);
+            if (row < 1) {
+                result = FAIL_RESULT;
             }
         }
 
-        return new RedirectView(RESULT_PAGE_URL);
+        redirectAttributes.addFlashAttribute("result", result);
+        redirectAttributes.addFlashAttribute("error", null);
+
+        return redirectView;
     }
 
     @GetMapping("/deleteNote")
-    public RedirectView deleteNote(Authentication authentication, @RequestParam Integer id, RedirectAttributes redirectAttributes) {
+    public RedirectView deleteNote(@RequestParam Integer id,
+                                   Authentication authentication,
+                                   RedirectAttributes redirectAttributes) {
+
         this.getUserId(authentication);
         Optional<Integer> optionalId = Optional.ofNullable(id);
+        if (optionalId.isEmpty()) {
+            this.errorMessage = "BAD REQUEST! ID CANNOT NULL!";
+            redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
-        if (optionalId.isPresent()) {
-            Optional<Note> optionalNote = Optional.ofNullable(this.noteService.getNoteById(optionalId.get()));
-
-            if (optionalNote.isPresent()) {
-                boolean isSameUser = userId.equals(optionalNote.get().getUserId());
-
-                if (isSameUser) {
-                    int row = this.noteService.deleteNote(optionalId.get());
-
-                    if (row >= 1) {
-                        redirectAttributes.addFlashAttribute("result", 1);
-                    } else {
-                        errorMessage = "DELETE FAIL!";
-                        redirectAttributes.addFlashAttribute("result", 2);
-                    }
-                } else {
-                    errorMessage = "CANNOT DELETE NOTE OF ANOTHER USER!";
-                    redirectAttributes.addFlashAttribute("error", errorMessage);
-                }
-            } else {
-                errorMessage = "NOTE NOT EXIST!";
-                redirectAttributes.addFlashAttribute("error", errorMessage);
-            }
-        } else {
-            errorMessage = "BAD REQUEST! ID CANNOT NULL!";
-            redirectAttributes.addFlashAttribute("error", errorMessage);
+            return this.redirectView;
         }
 
-        return new RedirectView(RESULT_PAGE_URL);
+        Optional<Note> optionalNote = Optional.ofNullable(this.noteService.getNoteById(optionalId.get()));
+        if (optionalNote.isEmpty()) {
+            this.errorMessage = "NOTE NOT EXIST!";
+            redirectAttributes.addFlashAttribute("error", this.errorMessage);
+
+            return this.redirectView;
+        }
+
+        boolean isSameUser = this.userId.equals(optionalNote.get().getUserId());
+        if (!isSameUser) {
+            this.errorMessage = "CANNOT DELETE NOTE OF ANOTHER USER!";
+            redirectAttributes.addFlashAttribute("error", this.errorMessage);
+
+            return this.redirectView;
+        }
+
+        int row = this.noteService.deleteNote(optionalId.get());
+        redirectAttributes.addFlashAttribute("result", row > 0 ? SUCCESS_RESULT : FAIL_RESULT);
+        redirectAttributes.addFlashAttribute("error", null);
+
+        return redirectView;
     }
 
     private void getUserId(Authentication authentication) {
@@ -117,6 +118,6 @@ public class NoteController {
         String username = authentication.getName();
         Optional<User> optionalUser = Optional.ofNullable(this.userService.getUser(username));
 
-        optionalUser.ifPresentOrElse(user -> userId = user.getId(), null);
+        optionalUser.ifPresentOrElse(user -> this.userId = user.getId(), null);
     }
 }

@@ -16,7 +16,8 @@ public class CredentialServiceImpl implements CredentialService {
     private final CredentialMapper mapper;
     private final EncryptionService encryptionService;
 
-    public CredentialServiceImpl(CredentialMapper mapper, EncryptionService encryptionService) {
+    public CredentialServiceImpl(CredentialMapper mapper,
+                                 EncryptionService encryptionService) {
         this.mapper = mapper;
         this.encryptionService = encryptionService;
     }

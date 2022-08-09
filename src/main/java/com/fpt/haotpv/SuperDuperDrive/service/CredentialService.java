@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface CredentialService {
 
+    boolean isCredentialAvailable(Credential credential);
+
     Credential getCredentialById(Integer id);
 
     List<Credential> getAllCredentialsByUser(Integer userId);

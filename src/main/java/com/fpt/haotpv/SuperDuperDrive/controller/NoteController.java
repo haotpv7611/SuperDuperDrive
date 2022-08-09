@@ -38,11 +38,25 @@ public class NoteController {
                                  Authentication authentication,
                                  RedirectAttributes redirectAttributes) {
 
+        if (note.getNoteDescription().length() > 1000) {
+            this.errorMessage = "Note can't be saved as description exceed 1000 characters!!! ";
+            redirectAttributes.addFlashAttribute("error", this.errorMessage);
+
+            return this.redirectView;
+        }
+
         this.getUserId(authentication);
         int result = SUCCESS_RESULT;
         Optional<Integer> optionalId = Optional.ofNullable(note.getNoteId());
         if (optionalId.isEmpty()) {
             note.setUserId(this.userId);
+            if (this.noteService.isNoteAvailable(note)) {
+                this.errorMessage = "Note already available.!!! ";
+                redirectAttributes.addFlashAttribute("error", this.errorMessage);
+
+                return this.redirectView;
+            }
+
             int row = this.noteService.createNote(note);
             if (row < 1) {
                 result = FAIL_RESULT;
@@ -50,7 +64,7 @@ public class NoteController {
         } else {
             Optional<Note> optionalNote = Optional.ofNullable(this.noteService.getNoteById(optionalId.get()));
             if (optionalNote.isEmpty()) {
-                this.errorMessage = "NOTE NOT EXIST!";
+                this.errorMessage = "NOTE NOT EXIST!!! ";
                 redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
                 return this.redirectView;
@@ -58,7 +72,7 @@ public class NoteController {
 
             boolean isSameUser = this.userId.equals(optionalNote.get().getUserId());
             if (!isSameUser) {
-                this.errorMessage = "CANNOT UPDATE NOTE OF ANOTHER USER!";
+                this.errorMessage = "CANNOT UPDATE NOTE OF ANOTHER USER!!! ";
                 redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
                 return this.redirectView;
@@ -84,7 +98,7 @@ public class NoteController {
         this.getUserId(authentication);
         Optional<Integer> optionalId = Optional.ofNullable(id);
         if (optionalId.isEmpty()) {
-            this.errorMessage = "BAD REQUEST! ID CANNOT NULL!";
+            this.errorMessage = "BAD REQUEST! ID CANNOT NULL!!! ";
             redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
             return this.redirectView;
@@ -92,7 +106,7 @@ public class NoteController {
 
         Optional<Note> optionalNote = Optional.ofNullable(this.noteService.getNoteById(optionalId.get()));
         if (optionalNote.isEmpty()) {
-            this.errorMessage = "NOTE NOT EXIST!";
+            this.errorMessage = "NOTE NOT EXIST!!! ";
             redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
             return this.redirectView;
@@ -100,7 +114,7 @@ public class NoteController {
 
         boolean isSameUser = this.userId.equals(optionalNote.get().getUserId());
         if (!isSameUser) {
-            this.errorMessage = "CANNOT DELETE NOTE OF ANOTHER USER!";
+            this.errorMessage = "CANNOT DELETE NOTE OF ANOTHER USER!!! ";
             redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
             return this.redirectView;

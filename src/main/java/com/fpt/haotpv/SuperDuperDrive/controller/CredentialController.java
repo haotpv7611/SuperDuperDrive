@@ -43,6 +43,13 @@ public class CredentialController {
         Optional<Integer> optionalId = Optional.ofNullable(credential.getCredentialId());
         if (optionalId.isEmpty()) {
             credential.setUserId(this.userId);
+            if (this.credentialService.isCredentialAvailable(credential)) {
+                this.errorMessage = "User already available.!!! ";
+                redirectAttributes.addFlashAttribute("error", this.errorMessage);
+
+                return this.redirectView;
+            }
+
             int row = this.credentialService.createCredential(credential);
             if (row < 1) {
                 result = FAIL_RESULT;
@@ -50,14 +57,14 @@ public class CredentialController {
         } else {
             Optional<Credential> optionalCredential = Optional.ofNullable(this.credentialService.getCredentialById(optionalId.get()));
             if (optionalCredential.isEmpty()) {
-                this.errorMessage = "CREDENTIAL NOT EXIST!";
+                this.errorMessage = "CREDENTIAL NOT EXIST!!! ";
                 redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
                 return this.redirectView;
             }
             boolean isSameUser = this.userId.equals(optionalCredential.get().getUserId());
             if (!isSameUser) {
-                this.errorMessage = "CANNOT UPDATE CREDENTIAL OF ANOTHER USER!";
+                this.errorMessage = "CANNOT UPDATE CREDENTIAL OF ANOTHER USER!!! ";
                 redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
                 return this.redirectView;
@@ -84,7 +91,7 @@ public class CredentialController {
         this.getUserId(authentication);
         Optional<Integer> optionalId = Optional.ofNullable(id);
         if (optionalId.isEmpty()) {
-            this.errorMessage = "BAD REQUEST! ID CANNOT NULL!";
+            this.errorMessage = "BAD REQUEST! ID CANNOT NULL!!! ";
             redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
             return this.redirectView;
@@ -92,7 +99,7 @@ public class CredentialController {
 
         Optional<Credential> optionalCredential = Optional.ofNullable(this.credentialService.getCredentialById(optionalId.get()));
         if (optionalCredential.isEmpty()) {
-            this.errorMessage = "CREDENTIAL NOT EXIST!";
+            this.errorMessage = "CREDENTIAL NOT EXIST!!! ";
             redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
             return this.redirectView;
@@ -100,7 +107,7 @@ public class CredentialController {
 
         boolean isSameUser = this.userId.equals(optionalCredential.get().getUserId());
         if (!isSameUser) {
-            this.errorMessage = "CANNOT DELETE CREDENTIAL OF ANOTHER USER!";
+            this.errorMessage = "CANNOT DELETE CREDENTIAL OF ANOTHER USER!!! ";
             redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
             return this.redirectView;

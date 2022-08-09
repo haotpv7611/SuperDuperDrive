@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface NoteService {
 
+    boolean isNoteAvailable(Note note);
+
     Note getNoteById(Integer noteId);
 
     List<Note> getAllNotesByUser(Integer userId);

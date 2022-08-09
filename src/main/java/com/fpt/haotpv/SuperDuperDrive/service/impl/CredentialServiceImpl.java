@@ -23,6 +23,15 @@ public class CredentialServiceImpl implements CredentialService {
     }
 
     @Override
+    public boolean isCredentialAvailable(Credential credential) {
+        String url = credential.getUrl();
+        String username = credential.getUsername();
+        Integer userId = credential.getUserId();
+
+        return this.mapper.findCredentialByUrlAndUsernameAndUserId(url, username, userId) != null;
+    }
+
+    @Override
     public Credential getCredentialById(Integer id) {
 
         return this.mapper.findById(id);

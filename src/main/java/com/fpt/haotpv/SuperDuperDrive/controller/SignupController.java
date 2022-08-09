@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
+import javax.annotation.PostConstruct;
+
 @Controller
 @RequestMapping("/signup")
 public class SignupController {
@@ -32,30 +34,35 @@ public class SignupController {
     public RedirectView signupUser(@ModelAttribute User user,
                                    RedirectAttributes redirectAttributes) {
 
-        final String DUPLICATE_USERNAME = "The username already exists.";
-        final String CREATE_FAILED = "There was an error signing you up. Please try again.";
-
-        String signupError = null;
-        String url = SIGNUP_URL;
-
         //check duplicate username
-        if (userService.isUsernameAvailable(user.getUsername())) {
+        if (!userService.isUsernameAvailable(user.getUsername())) {
+            redirectAttributes.addFlashAttribute("signupError", "The username already exists!!! ");
+
+            return new RedirectView(SIGNUP_URL);
+        } else {
             Integer row = userService.createUser(user);
-
             if (row < 0) {
-                signupError = "There was an error signing you up. Please try again.";
+                redirectAttributes.addFlashAttribute("signupError", "There was an error signing you up. Please try again!!! ");
+
+                return new RedirectView(SIGNUP_URL);
+            } else {
+                redirectAttributes.addFlashAttribute("signupSuccess", true);
+
+                return new RedirectView("login");
             }
-        } else {
-            signupError = "The username already exists.";
         }
+    }
 
-        if (signupError == null) {
-            redirectAttributes.addFlashAttribute("signupSuccess", true);
-            url = "login";
-        } else {
-            redirectAttributes.addFlashAttribute("signupError", signupError);
-        }
+    //for test, please ignore
+    @PostConstruct
+    private void initUser() {
 
-        return new RedirectView(url);
+        final String temp = "123";
+        User user = new User();
+        user.setFirstName(temp);
+        user.setLastName(temp);
+        user.setUsername(temp);
+        user.setPassword(temp);
+        this.userService.createUser(user);
     }
 }

@@ -9,6 +9,10 @@ import java.util.List;
 @Mapper
 public interface CredentialMapper {
 
+    // check duplicate credential to a single user
+    @Select("SELECT * FROM CREDENTIALS WHERE url = #{url} AND username = #{username} AND userid = ${userId}")
+    Note findCredentialByUrlAndUsernameAndUserId(String url, String username, Integer userId);
+
     @Select("SELECT * FROM CREDENTIALS WHERE credentialid = #{credentialId}")
     Credential findById(Integer credentialId);
 

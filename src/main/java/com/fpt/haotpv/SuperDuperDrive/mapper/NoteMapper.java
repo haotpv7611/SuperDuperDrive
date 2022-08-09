@@ -8,6 +8,10 @@ import java.util.List;
 @Mapper
 public interface NoteMapper {
 
+    // check duplicate note to a single user
+    @Select("SELECT * FROM NOTES WHERE notetitle = #{noteTitle} AND notedescription = #{noteDescription} AND userid = ${userId}")
+    Note findNoteByTitleAndDescriptionAndUserId(String noteTitle, String noteDescription, Integer userId);
+
     @Select("SELECT * FROM NOTES WHERE noteid = #{noteId}")
     Note findById(Integer noteId);
 

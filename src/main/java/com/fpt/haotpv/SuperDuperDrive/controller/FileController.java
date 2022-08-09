@@ -53,7 +53,7 @@ public class FileController {
         this.getUserId(authentication);
         String fileName = fileUpload.getOriginalFilename();
         if (!this.fileService.isFileNameAvailable(fileName, this.userId)) {
-            this.errorMessage = "The filename already exists";
+            this.errorMessage = "The filename already exists!!! ";
             redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
             return this.redirectView;
@@ -87,7 +87,7 @@ public class FileController {
         this.getUserId(authentication);
         Optional<Integer> optionalId = Optional.ofNullable(id);
         if (optionalId.isEmpty()) {
-            this.errorMessage = "BAD REQUEST! ID CANNOT NULL!";
+            this.errorMessage = "BAD REQUEST! ID CANNOT NULL!!! ";
             redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
             return this.redirectView;
@@ -95,7 +95,7 @@ public class FileController {
 
         Optional<File> optionalFile = Optional.ofNullable(this.fileService.getFileById(optionalId.get()));
         if (optionalFile.isEmpty()) {
-            this.errorMessage = "FILE NOT EXIST!";
+            this.errorMessage = "FILE NOT EXIST!!! ";
             redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
             return this.redirectView;
@@ -135,7 +135,7 @@ public class FileController {
         this.getUserId(authentication);
         Optional<Integer> optionalId = Optional.ofNullable(id);
         if (optionalId.isEmpty()) {
-            this.errorMessage = "BAD REQUEST! ID CANNOT NULL!";
+            this.errorMessage = "BAD REQUEST! ID CANNOT NULL!!! ";
             redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
             return this.redirectView;
@@ -143,7 +143,7 @@ public class FileController {
 
         Optional<File> optionalFile = Optional.ofNullable(this.fileService.getFileById(optionalId.get()));
         if (optionalFile.isEmpty()) {
-            this.errorMessage = "FILE NOT EXIST!";
+            this.errorMessage = "FILE NOT EXIST!!! ";
             redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
             return this.redirectView;
@@ -151,7 +151,7 @@ public class FileController {
 
         boolean isSameUser = userId.equals(optionalFile.get().getUserId());
         if (!isSameUser) {
-            this.errorMessage = "CANNOT DELETE FILE OF ANOTHER USER!";
+            this.errorMessage = "CANNOT DELETE FILE OF ANOTHER USER!!! ";
             redirectAttributes.addFlashAttribute("error", this.errorMessage);
 
             return this.redirectView;

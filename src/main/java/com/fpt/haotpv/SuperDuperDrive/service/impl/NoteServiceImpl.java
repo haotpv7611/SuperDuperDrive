@@ -17,6 +17,16 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    public boolean isNoteAvailable(Note note) {
+
+        String title = note.getNoteTitle();
+        String description = note.getNoteDescription();
+        Integer userId = note.getUserId();
+
+        return this.mapper.findNoteByTitleAndDescriptionAndUserId(title, description, userId) != null;
+    }
+
+    @Override
     public Note getNoteById(Integer noteId) {
 
         return this.mapper.findById(noteId);
